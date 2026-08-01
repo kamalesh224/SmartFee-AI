@@ -1,5 +1,7 @@
 # VTeam for Antigravity
 
+*This framework is a direct port and adaptation of the brilliant [vteam-hybrid](https://github.com/noodlefrenzy/vteam-hybrid) project by noodlefrenzy, tailored specifically for the Antigravity IDE.*
+
 **A virtual development team for Antigravity.** One template. A team of specialists that enforces TDD, challenges architecture decisions, and gets smarter the more you use it.
 
 > Antigravity is powerful, but on a real project it drifts. You ask it to implement a feature and it skips tests. You ask for architecture advice and it writes code instead. Reviews are inconsistent. Context evaporates between sessions.
