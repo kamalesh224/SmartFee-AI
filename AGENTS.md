@@ -81,22 +81,9 @@ Never implement a feature with a pending ADR without writing the ADR first. Arch
 ### Proxy Mode
 When the human declares unavailability, Pat answers product questions using `docs/product-context.md`. Guardrails and limits: `docs/process/gotchas.md` § Process.
 
-## Development Workflow
+## Workflows & Session Management
 
-### Per Work Item
-1. **Start** — Move issue to **"In Progress"** on the board. Create a new worktree for the issue (`git worktree add -b feature/issue-N .worktrees/feature-issue-N`). Do this BEFORE writing any code.
-2. **TDD** — Red → Green → Refactor. M+ items: Tara writes failing tests first as standalone agent.
-3. **Commit** — One commit per issue, conventional message, `Closes #N`. Push the worktree's branch to origin.
-4. **PR & Review** — Create a Pull Request (`gh pr create`). Move issue to **"In Review"** on the board. Then invoke code-reviewer (Vik + Tara + Pierrot). Fix Critical/Important findings on the branch.
-5. **Done Gate** — Full checklist at `docs/process/done-gate.md`.
-6. **Close** — Merge the PR (`gh pr merge`). Move issue to **"Done"** on the board. Remove the worktree (`git worktree remove .worktrees/feature-issue-N`) and pull updates in main (`git pull`).
-
-**Status transitions are mandatory and ordered.** In Progress → In Review → Done. Skipping "In Review" is a process violation.
-
-**STOP**: Do not start the next item until step 6 is complete.
-
-### Commit Discipline
-Commit and push after every reasonable chunk of work to your branch. One commit per issue. Conventional commits format. Never push directly to main.
+> **Note:** Detailed rules for development workflow (branching, PRs, TDD) and session management have been modularized to `.agents/rules/`. They will be loaded automatically when you perform those tasks.
 
 ## Tracking
 
@@ -113,16 +100,7 @@ Board commands, pre-flight checks, and setup instructions are in the active adap
 
 Run `/sprint-boundary` when all sprint items are Done or deferred. Full workflow is in the command.
 
-## Session Management
 
-**Context is finite.** To avoid mid-sprint context exhaustion:
-
-1. **Plan waves before executing.** Break issues into waves by size/dependency. Document in `docs/sprints/sprint-N-plan.md`.
-2. **One wave per session.** Execute a wave, commit, then run `/handoff`. Start the next wave fresh.
-3. **Background agents write to files.** Use `run_in_background: true`. Read summaries, not full output.
-4. **Read `docs/code-map.md` first.** Orient from the map, not from scratch.
-5. **Commit frequently.** Uncommitted work is the most expensive thing to reconstruct.
-6. **Tracking artifacts carry phase context.** See `docs/process/tracking-protocol.md`.
 
 ## Process Docs Index
 
