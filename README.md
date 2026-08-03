@@ -28,6 +28,15 @@ git commit -m "chore: initialize from vteam template"
 
 Open the project directory in your Antigravity IDE.
 
+### 3. Authenticate Agents (MCP Server)
+
+To allow the agents to natively interact with GitHub issues and pull requests, you must provide your GitHub token to their environment:
+1. Generate a GitHub Personal Access Token.
+2. Export it in your terminal profile (e.g. `~/.bashrc` or `~/.zshrc`):
+   ```bash
+   export GITHUB_PERSONAL_ACCESS_TOKEN="your_token_here"
+   ```
+
 ### 3. Scaffold your stack (optional)
 
 | Command | What it sets up |
