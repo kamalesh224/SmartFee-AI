@@ -1,155 +1,142 @@
-import React, { useState } from 'react';
-import type { User, FeeItem, Transaction, NotificationItem, UserRole } from './types';
+import React, { useState, useEffect } from 'react';
+import type { User, FeeItem, Transaction, UserRole, AIRiskPrediction } from './types';
 import {
   mockCurrentStudent,
   mockAdmin,
   mockFeeItems,
   mockTransactions,
   mockAIRiskPredictions,
-  mockNotifications,
 } from './data/mockData';
-import { Header } from './components/Header';
-import { StudentDashboard } from './components/StudentDashboard';
-import { AdminDashboard } from './components/AdminDashboard';
-import { PaymentModal } from './components/PaymentModal';
-import { NotificationDrawer } from './components/NotificationDrawer';
-import { LoginModal } from './components/LoginModal';
+import { LoginScreen } from './components/LoginScreen';
+import { StudentDashboardScreen } from './components/StudentDashboardScreen';
+import { PaymentScreen } from './components/PaymentScreen';
+import { ReceiptScreen } from './components/ReceiptScreen';
+import { AdminDashboardScreen } from './components/AdminDashboardScreen';
+import {
+  fetchFeeItems,
+  fetchTransactions,
+  fetchAIRiskPredictions,
+  updateFeeItemStatus,
+  recordTransaction,
+} from './lib/supabase';
 
 export const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<User>(mockCurrentStudent);
-  const [viewportMode, setViewportMode] = useState<'desktop' | 'mobile'>('desktop');
 
   const [feeItems, setFeeItems] = useState<FeeItem[]>(mockFeeItems);
   const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [riskPredictions] = useState(mockAIRiskPredictions);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(mockNotifications);
+  const [riskPredictions, setRiskPredictions] = useState<AIRiskPrediction[]>(mockAIRiskPredictions);
 
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  // Modal / Screen states
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [selectedFeeItem, setSelectedFeeItem] = useState<FeeItem | null>(null);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+  const [selectedReceipt, setSelectedReceipt] = useState<Transaction | null>(null);
+
+  useEffect(() => {
+    const loadSupabaseData = async () => {
+      try {
+        const [fees, txns, risks] = await Promise.all([
+          fetchFeeItems(),
+          fetchTransactions(),
+          fetchAIRiskPredictions(),
+        ]);
+        if (fees.length > 0) setFeeItems(fees);
+        if (txns.length > 0) setTransactions(txns);
+        if (risks.length > 0) setRiskPredictions(risks);
+      } catch (err) {
+        console.warn('Falling back to local mock data:', err);
+      }
+    };
+    loadSupabaseData();
+  }, []);
 
   const handleLogin = (role: UserRole) => {
     setCurrentUser(role === 'student' ? mockCurrentStudent : mockAdmin);
     setIsLoggedIn(true);
   };
 
-  const handleSwitchRole = (role: UserRole) => {
-    setCurrentUser(role === 'student' ? mockCurrentStudent : mockAdmin);
+  const handleLogout = () => {
+    setIsLoggedIn(false);
   };
 
-  const handleToggleViewport = () => {
-    setViewportMode((prev) => (prev === 'desktop' ? 'mobile' : 'desktop'));
-  };
-
-  const handleOpenPaymentModal = (feeItem: FeeItem) => {
+  const handleOpenPayment = (feeItem: FeeItem) => {
     setSelectedFeeItem(feeItem);
-    setIsPaymentModalOpen(true);
+    setIsPaymentOpen(true);
   };
 
   const handlePaymentSuccess = (newTxn: Transaction) => {
     // 1. Add new transaction
     setTransactions((prev) => [newTxn, ...prev]);
+    recordTransaction(newTxn);
 
     // 2. Update fee item status to paid
     if (selectedFeeItem) {
       setFeeItems((prev) =>
         prev.map((item) => (item.id === selectedFeeItem.id ? { ...item, status: 'paid' } : item))
       );
+      updateFeeItemStatus(selectedFeeItem.id, 'paid');
     }
 
-    // 3. Add FCM Push notification
-    const newNotif: NotificationItem = {
-      id: `NOTIF-${Date.now()}`,
-      title: 'Payment Received Successfully',
-      message: `Receipt ${newTxn.receiptNo} generated for ${newTxn.feeType} (₹${newTxn.amountPaid.toLocaleString('en-IN')}).`,
-      timestamp: 'Just now',
-      read: false,
-      type: 'payment',
-    };
-    setNotifications((prev) => [newNotif, ...prev]);
+    setIsPaymentOpen(false);
+
+    // 3. Open receipt automatically
+    setSelectedReceipt(newTxn);
+    setIsReceiptOpen(true);
   };
 
-  const handleTriggerFCMReminder = (studentName: string) => {
-    const newNotif: NotificationItem = {
-      id: `NOTIF-${Date.now()}`,
-      title: 'FCM Reminder Sent',
-      message: `Push notification alert sent to ${studentName} for overdue fee payment.`,
-      timestamp: 'Just now',
-      read: false,
-      type: 'ai_alert',
-    };
-    setNotifications((prev) => [newNotif, ...prev]);
+  const handleViewReceipt = (txn: Transaction) => {
+    setSelectedReceipt(txn);
+    setIsReceiptOpen(true);
   };
 
-  const unreadNotifCount = notifications.filter((n) => !n.read).length;
+  const handleAddStudent = (newPrediction: AIRiskPrediction) => {
+    setRiskPredictions((prev) => [newPrediction, ...prev]);
+  };
 
+  // 1. LOGIN SCREEN
   if (!isLoggedIn) {
-    return <LoginModal onLogin={handleLogin} />;
+    return <LoginScreen onLogin={handleLogin} />;
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 font-sans selection:bg-blue-600 selection:text-white">
       
-      {/* Top Header Navigation */}
-      <Header
-        currentUser={currentUser}
-        onSwitchRole={handleSwitchRole}
-        viewportMode={viewportMode}
-        onToggleViewport={handleToggleViewport}
-        unreadNotifCount={unreadNotifCount}
-        onOpenNotifications={() => setIsNotificationOpen(true)}
-        onLogout={() => setIsLoggedIn(false)}
-      />
+      {/* 2. STUDENT DASHBOARD vs 5. ADMIN DASHBOARD */}
+      {currentUser.role === 'student' ? (
+        <StudentDashboardScreen
+          student={currentUser}
+          feeItems={feeItems}
+          transactions={transactions}
+          onOpenPayment={handleOpenPayment}
+          onViewReceipt={handleViewReceipt}
+          onLogout={handleLogout}
+        />
+      ) : (
+        <AdminDashboardScreen
+          admin={currentUser}
+          riskPredictions={riskPredictions}
+          onAddStudent={handleAddStudent}
+          onLogout={handleLogout}
+        />
+      )}
 
-      {/* Main Viewport Container */}
-      <main className="flex-1 py-6 px-4 lg:px-8">
-        <div
-          className={`mx-auto transition-all duration-300 ${
-            viewportMode === 'mobile'
-              ? 'max-w-sm rounded-[40px] border-[10px] border-slate-900 shadow-2xl p-4 bg-slate-950 min-h-[750px] my-4'
-              : 'max-w-7xl'
-          }`}
-        >
-          {currentUser.role === 'student' ? (
-            <StudentDashboard
-              student={currentUser}
-              feeItems={feeItems}
-              transactions={transactions}
-              onOpenPaymentModal={handleOpenPaymentModal}
-            />
-          ) : (
-            <AdminDashboard
-              admin={currentUser}
-              riskPredictions={riskPredictions}
-              onTriggerFCMReminder={handleTriggerFCMReminder}
-            />
-          )}
-        </div>
-      </main>
-
-      {/* Payment Gateway Modal */}
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
+      {/* 3. PAYMENT SCREEN MODAL */}
+      <PaymentScreen
+        isOpen={isPaymentOpen}
         feeItem={selectedFeeItem}
+        onClose={() => setIsPaymentOpen(false)}
         onPaymentSuccess={handlePaymentSuccess}
       />
 
-      {/* FCM Push Notification Drawer */}
-      <NotificationDrawer
-        isOpen={isNotificationOpen}
-        onClose={() => setIsNotificationOpen(false)}
-        notifications={notifications}
-        onMarkAllRead={() =>
-          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-        }
+      {/* 4. RECEIPT SCREEN MODAL */}
+      <ReceiptScreen
+        isOpen={isReceiptOpen}
+        transaction={selectedReceipt}
+        onClose={() => setIsReceiptOpen(false)}
       />
-
-      {/* Footer */}
-      <footer className="py-4 border-t border-slate-900 text-center text-xs text-slate-500">
-        SmartFee AI Cross-Platform Architecture • Android • iOS • Windows • Integrated Payment & AI Risk Engine
-      </footer>
 
     </div>
   );

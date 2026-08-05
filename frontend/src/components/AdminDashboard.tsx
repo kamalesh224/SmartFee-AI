@@ -38,6 +38,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [adminTab, setAdminTab] = useState<'overview' | 'ai_insights' | 'analytics'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [riskFilter, setRiskFilter] = useState<'ALL' | 'HIGH' | 'MEDIUM' | 'LOW'>('ALL');
+  const [deptFilter, setDeptFilter] = useState<'ALL' | 'CSE' | 'ECE' | 'EEE' | 'CIVIL' | 'MECH'>('ALL');
   const [remindedStudents, setRemindedStudents] = useState<string[]>([]);
 
   const filteredPredictions = riskPredictions.filter((item) => {
@@ -46,7 +47,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       item.rollNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.department.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRisk = riskFilter === 'ALL' || item.riskLevel === riskFilter;
-    return matchesSearch && matchesRisk;
+    
+    let matchesDept = true;
+    if (deptFilter === 'CSE') matchesDept = item.department.toLowerCase().includes('computer');
+    else if (deptFilter === 'ECE') matchesDept = item.department.toLowerCase().includes('electronics');
+    else if (deptFilter === 'EEE') matchesDept = item.department.toLowerCase().includes('electrical');
+    else if (deptFilter === 'CIVIL') matchesDept = item.department.toLowerCase().includes('civil');
+    else if (deptFilter === 'MECH') matchesDept = item.department.toLowerCase().includes('mechanical');
+
+    return matchesSearch && matchesRisk && matchesDept;
   });
 
   const handleSendReminder = (studentName: string) => {
@@ -196,6 +205,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Department Filter Bar */}
+          <div className="flex items-center gap-2 pt-2 border-t border-slate-800/60 overflow-x-auto pb-1">
+            <span className="text-[11px] font-bold text-slate-400 shrink-0">Department:</span>
+            {(
+              [
+                { code: 'ALL', label: 'All Depts' },
+                { code: 'CSE', label: 'CSE (Computer Science)' },
+                { code: 'ECE', label: 'ECE (Electronics)' },
+                { code: 'EEE', label: 'EEE (Electrical)' },
+                { code: 'CIVIL', label: 'Civil Eng.' },
+                { code: 'MECH', label: 'Mechanical' },
+              ] as const
+            ).map((dept) => (
+              <button
+                key={dept.code}
+                onClick={() => setDeptFilter(dept.code)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition-all ${
+                  deptFilter === dept.code
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
+                }`}
+              >
+                {dept.label}
+              </button>
+            ))}
           </div>
 
           <div className="overflow-x-auto">

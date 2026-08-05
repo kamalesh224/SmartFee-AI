@@ -5,9 +5,9 @@
 
 <!-- TODO: Replace this section with your project's overview after scaffolding -->
 
-**Project Name:** [Your Project Name]
-**Description:** [Brief description of what this project does]
-**Tech Stack:** [Language, framework, key libraries — update after running a scaffold command]
+**Project Name:** SmartFee-AI
+**Description:** Autonomous Student Fee & AI Prediction Platform with Supabase Cloud backend integration.
+**Tech Stack:** React 19, TypeScript, Vite, Tailwind CSS, Supabase, Lucide React, Recharts.
 
 **Codebase map:** `docs/code-map.md` — read this first to understand the package structure, public APIs, and data flow.
 
