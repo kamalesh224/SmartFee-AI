@@ -100,11 +100,20 @@ ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_risk_predictions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
--- Development RLS Policies (Allows Anon Access via API Key)
+-- Development RLS Policies (Idempotent: Drop policy if exists before creating)
+DROP POLICY IF EXISTS "Allow open access to profiles" ON public.profiles;
 CREATE POLICY "Allow open access to profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow open access to fee_items" ON public.fee_items;
 CREATE POLICY "Allow open access to fee_items" ON public.fee_items FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow open access to transactions" ON public.transactions;
 CREATE POLICY "Allow open access to transactions" ON public.transactions FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow open access to ai_risk_predictions" ON public.ai_risk_predictions;
 CREATE POLICY "Allow open access to ai_risk_predictions" ON public.ai_risk_predictions FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow open access to notifications" ON public.notifications;
 CREATE POLICY "Allow open access to notifications" ON public.notifications FOR ALL USING (true) WITH CHECK (true);
 
 -- --------------------------------------------------------------------
