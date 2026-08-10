@@ -3,9 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "npm --prefix frontend run dev",
-    "build": "npm --prefix frontend run build",
-    "lint": "npm --prefix frontend run lint",
-    "preview": "npm --prefix frontend run preview"
+    "dev": "npx --prefix frontend vite --host",
+    "build": "npx --prefix frontend vite build",
+    "lint": "npx --prefix frontend oxlint",
+    "preview": "npx --prefix frontend vite preview"
   }
 }
