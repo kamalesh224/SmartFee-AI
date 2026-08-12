@@ -3,7 +3,7 @@ agent-notes:
   ctx: "codebase structural overview for humans and agents"
   deps: []
   state: stub
-  last: "coordinator@2026-02-15"
+  last: "ines@2026-08-08"
   key: ["UPDATE when adding packages, modules, or changing public APIs"]
 ---
 # Code Map
@@ -66,6 +66,11 @@ core ────── (no deps — foundational types)
 <!-- Document how data flows through the system's type hierarchy -->
 <!-- Example: RawInput → ValidatedInput → ProcessedResult → OutputFormat -->
 
-## Config Structure
+## Deployment & Infrastructure
 
-<!-- Document config files, environment variables, and their relationships -->
+- **Skill**: `.agents/skills/deploy/SKILL.md` — multi-target deployment automation & pre-flight checks.
+- **Pre-flight Check Script**: `.agents/skills/deploy/scripts/preflight-check.sh`
+- **Docker Production Setup**: `Dockerfile` (multi-stage build) & `nginx.conf` (SPA fallback & headers).
+- **CI/CD Pipeline**: `.github/workflows/deploy.yml` (GitHub Actions linting, building & container validation).
+- **Vercel Config**: `vercel.json` & `frontend/vercel.json` (SPA rewrites and build paths).
+

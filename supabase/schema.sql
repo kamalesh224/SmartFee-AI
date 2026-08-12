@@ -124,7 +124,12 @@ CREATE POLICY "Allow open access to notifications" ON public.notifications FOR A
 INSERT INTO public.profiles (id, name, email, role, department, roll_no, academic_year, avatar_url)
 VALUES 
   ('STU-2026-042', 'Alex Rivera', 'alex.rivera@smartfee.edu', 'student', 'Computer Science & Engineering', '2026-CS-042', '3rd Year (Sem 6)', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'),
-  ('ADM-2026-001', 'Dr. Sarah Jenkins', 's.jenkins@smartfee.edu', 'admin', 'Dean of Finance & Operations', NULL, NULL, 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80')
+  ('ADM-2026-001', 'Dr. Sarah Jenkins', 's.jenkins@smartfee.edu', 'admin', 'Dean of Finance & Operations', NULL, NULL, 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'),
+  ('STU-2026-108', 'Marcus Vance', 'm.vance@smartfee.edu', 'student', 'Mechanical Engineering', '2026-ME-018', '4th Year', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'),
+  ('STU-2026-214', 'Sophia Patel', 's.patel@smartfee.edu', 'student', 'Electronics & Comm.', '2026-ECE-091', '2nd Year', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'),
+  ('STU-2026-305', 'Liam O''Connor', 'l.oconnor@smartfee.edu', 'student', 'Electrical Engineering', '2026-EEE-012', '1st Year', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'),
+  ('STU-2026-411', 'Emma Watson', 'e.watson@smartfee.edu', 'student', 'Computer Science & Eng.', '2026-CS-112', '3rd Year', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&auto=format&fit=crop&q=80'),
+  ('STU-2026-520', 'Noah Kim', 'n.kim@smartfee.edu', 'student', 'Civil Engineering', '2026-CIV-045', '2nd Year', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80')
 ON CONFLICT (id) DO UPDATE SET 
   name = EXCLUDED.name,
   email = EXCLUDED.email;

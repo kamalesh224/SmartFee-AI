@@ -1,29 +1,58 @@
 ---
 name: deploy
-description: Dynamically generate deployment infrastructure for the MVP.
+description: Dynamically generate and execute deployment infrastructure for SmartFee-AI.
 ---
 
-<!-- agent-notes: { ctx: "dynamic MVP deployment config generator", deps: [AGENTS.md], state: active, last: "ines@2026-08-01" } -->
-Dynamically generate deployment infrastructure when a project is MVP-ready.
+<!-- agent-notes: { ctx: "dynamic deployment skill for React/Vite/Supabase/Docker/Vercel", deps: [AGENTS.md, Dockerfile, nginx.conf, .github/workflows/deploy.yml], state: active, last: "ines@2026-08-08" } -->
+Dynamically generate, validate, and execute deployment infrastructure when a project is release or MVP-ready.
 
-This skill is owned by Ines (DevOps). When invoked, analyze the current project's tech stack and automatically generate the appropriate deployment configuration.
+This skill is owned by Ines (DevOps). When invoked, analyze the project's tech stack, execute pre-flight validation, and provide deployment target configurations (Vercel, Docker/Nginx, GitHub Actions, and Supabase backend integration).
 
 ## Steps
 
-1. **Analyze the Stack**: Look at the current repository to determine what is being built:
-   - Is there a `package.json`? (Node.js/Next.js/React/Vite)
-   - Is there a `pyproject.toml` or `requirements.txt`? (Python/FastAPI/Flask)
-   - Is there a `Cargo.toml`? (Rust)
-   - Is there a `Dockerfile` already?
+### 1. Pre-Flight Validation
+Execute the pre-flight verification script to ensure build and code quality standards are met:
+```bash
+bash .agents/skills/deploy/scripts/preflight-check.sh
+```
+Check for:
+- Workspace structure & `package.json` scripts (`npm run build`, `npm run lint`).
+- Environment variable configuration (`.env.example` vs actual environment requirements).
+- Supabase schema migrations in `supabase/schema.sql`.
 
-2. **Generate MVP Infrastructure**: Based on the stack, generate ONE of the following (if not already present):
-   - A standard `Dockerfile` appropriate for the language.
-   - A `.github/workflows/deploy.yml` for basic CI/CD (e.g. testing and building).
-   - If it's a static site or Next.js app, provide `vercel.json` or equivalent simple deployment config.
+### 2. Deployment Targets
 
-3. **Provide Instructions**: Write an Antigravity UI Artifact (`deployment_guide.md`) in the `<appDataDir>/brain/<conversation-id>/` directory summarizing what was generated and providing the user with exact commands to deploy their MVP (e.g., `docker build ...` or `vercel deploy`).
+#### Target A: Vercel (Recommended for SPA Frontend)
+SmartFee-AI is pre-configured with root and frontend `vercel.json`.
+- **Deploy Command**: `vercel --prod`
+- **Output Directory**: `frontend/dist`
+- **Build Command**: `npm --prefix frontend run build`
+
+#### Target B: Docker / Containerized Production
+Use the root multi-stage `Dockerfile` and custom `nginx.conf`:
+- **Build Container**: `docker build -t smartfee-ai:latest .`
+- **Run Container**: `docker run -d -p 8080:80 --name smartfee-app smartfee-ai:latest`
+- Access at `http://localhost:8080`.
+
+#### Target C: GitHub Actions CI/CD
+Automated pipeline defined in `.github/workflows/deploy.yml`:
+- Runs linting and Vite production bundle build on pull requests and pushes to `main`.
+- Triggers production container or host deployment upon successful build.
+
+#### Target D: Supabase Cloud / Database Backend
+Deploy database schema and policies:
+- Execute `supabase/schema.sql` against your Supabase project dashboard or via CLI:
+  ```bash
+  supabase db push
+  ```
+
+### 3. Generate Deployment Artifact Guide
+Write an Antigravity UI Artifact (`deployment_guide.md`) in `<appDataDir>/brain/<conversation-id>/` summarizing:
+- Current environment status.
+- Exact commands to execute for chosen deployment target.
+- Required production environment variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
 
 ## Considerations
 
-- Do not over-engineer. This is for an MVP. Focus on the simplest path to production (e.g., standard Dockerfile, basic GitHub Actions).
-- If the user provides specific arguments (e.g., `/deploy to AWS`), invoke the `aws-review` skill or adapt the deployment generation for that specific cloud provider.
+- Ensure environment variables starting with `VITE_` are injected at build time for Vite SPA static bundles.
+- Keep Nginx SPA fallback routes (`try_files $uri $uri/ /index.html;`) active to handle HTML5 client-side routing.

@@ -1,0 +1,57 @@
+# agent-notes: { ctx: "GitHub Actions CI/CD deployment pipeline", deps: [Dockerfile, package.json, frontend/package.json], state: active, last: "ines@2026-08-08" }
+name: Build & Deploy SmartFee-AI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-and-build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci || npm install
+
+      - name: Lint Codebase
+        run: |
+          npm run lint
+
+      - name: Build Production Frontend
+        run: |
+          npm run build
+
+  docker-build:
+    name: Validate Docker Container
+    runs-on: ubuntu-latest
+    needs: lint-and-build
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: smartfee-ai:latest

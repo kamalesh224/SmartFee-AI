@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { User, FeeItem, Transaction, AIRiskPrediction, NotificationItem } from '../types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://kcbigpwbpeofsllmrmmo.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjYmlncHdicGVvZnNsbG1ybW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4OTU2NzAsImV4cCI6MjEwMTQ3MTY3MH0.QA1iUX8zfzlr7o8w9iuTYVtOleb50H4h7Bwwmxd4zRA';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://umrtbswhusqhnrizwpnj.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVtcnRic3dodXNxaG5yaXp3cG5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NTg3NjMsImV4cCI6MjEwMjAzNDc2M30.dG4P5QzlaSytG0avXabos2Cxwc59ra76Xadu6xHea2s';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 

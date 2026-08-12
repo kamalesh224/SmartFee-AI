@@ -1,0 +1,12 @@
+# agent-notes: { ctx: "Docker context exclusion list", deps: [Dockerfile], state: active, last: "ines@2026-08-08" }
+
+node_modules
+frontend/node_modules
+frontend/dist
+.git
+.github
+.agents
+docs
+*.md
+.env
+.env.local
