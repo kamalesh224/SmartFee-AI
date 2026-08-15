@@ -1,3 +1,4 @@
+// agent-notes: { ctx: "Admin dashboard screen with multi-field search across student name, roll number, department, academic year, pending fee, fee status", deps: ["src/types.ts"], state: active, last: "antigravity@2026-08-15" }
 import React, { useState } from 'react';
 import type { User, AIRiskPrediction } from '../types';
 import { UserPlus, Filter, Search, LogOut, CheckCircle2, AlertCircle, X } from 'lucide-react';
@@ -27,10 +28,20 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
   const [pendingAmount, setPendingAmount] = useState<number>(45000);
 
   const filteredPredictions = riskPredictions.filter((item) => {
+    const searchLower = searchTerm.toLowerCase().trim();
+    const feeStatus = item.pendingAmount === 0 ? 'paid' : 'pending';
+    const pendingAmountStr = item.pendingAmount.toString();
+    const pendingAmountFormatted = `₹${item.pendingAmount.toLocaleString('en-IN')}`.toLowerCase();
+
     const matchesSearch =
-      item.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.rollNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.department.toLowerCase().includes(searchTerm.toLowerCase());
+      !searchLower ||
+      item.studentName.toLowerCase().includes(searchLower) ||
+      item.rollNo.toLowerCase().includes(searchLower) ||
+      item.department.toLowerCase().includes(searchLower) ||
+      item.academicYear.toLowerCase().includes(searchLower) ||
+      pendingAmountStr.includes(searchLower) ||
+      pendingAmountFormatted.includes(searchLower) ||
+      feeStatus.includes(searchLower);
 
     let matchesDept = true;
     if (deptFilter === 'CSE') matchesDept = item.department.toLowerCase().includes('computer');
@@ -106,7 +117,7 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="text"
-                placeholder="Search student, roll no, department..."
+                placeholder="Search Student Name, Roll Number, Department, Academic Year, Pending Fee, Fee Status..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600"

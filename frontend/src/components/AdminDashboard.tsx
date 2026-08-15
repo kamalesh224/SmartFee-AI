@@ -1,3 +1,4 @@
+// agent-notes: { ctx: "Admin dashboard component with multi-field student search and risk analytics", deps: ["src/types.ts", "src/data/mockData.ts"], state: active, last: "antigravity@2026-08-15" }
 import React, { useState } from 'react';
 import type { User, AIRiskPrediction } from '../types';
 import { mockAnalyticsData } from '../data/mockData';
@@ -42,10 +43,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [remindedStudents, setRemindedStudents] = useState<string[]>([]);
 
   const filteredPredictions = riskPredictions.filter((item) => {
+    const searchLower = searchTerm.toLowerCase().trim();
+    const feeStatus = item.pendingAmount === 0 ? 'paid' : 'pending';
+    const pendingAmountStr = item.pendingAmount.toString();
+    const pendingAmountFormatted = `₹${item.pendingAmount.toLocaleString('en-IN')}`.toLowerCase();
+
     const matchesSearch =
-      item.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.rollNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.department.toLowerCase().includes(searchTerm.toLowerCase());
+      !searchLower ||
+      item.studentName.toLowerCase().includes(searchLower) ||
+      item.rollNo.toLowerCase().includes(searchLower) ||
+      item.department.toLowerCase().includes(searchLower) ||
+      item.academicYear.toLowerCase().includes(searchLower) ||
+      pendingAmountStr.includes(searchLower) ||
+      pendingAmountFormatted.includes(searchLower) ||
+      feeStatus.includes(searchLower);
+
     const matchesRisk = riskFilter === 'ALL' || item.riskLevel === riskFilter;
     
     let matchesDept = true;
@@ -181,7 +193,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               <input
                 type="text"
-                placeholder="Search by student, roll no, department..."
+                placeholder="Search Student Name, Roll Number, Department, Academic Year, Pending Fee, Fee Status..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
