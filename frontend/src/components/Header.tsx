@@ -1,3 +1,4 @@
+// agent-notes: { ctx: "App header bar with branding for Vaigai College of Engineering (Anna University Campus)", deps: ["src/types.ts"], state: active, last: "antigravity@2026-08-15" }
 import React from 'react';
 import type { User } from '../types';
 import { ShieldCheck, UserCheck, Bell, Monitor, Smartphone, Sparkles, LogOut } from 'lucide-react';
@@ -34,10 +35,10 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold tracking-tight text-white">SmartFee <span className="gradient-text">AI</span></h1>
               <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                v2.4 Autonomous
+                Anna University Campus
               </span>
             </div>
-            <p className="text-xs text-slate-400">Cross-Platform Intelligent Fee Management</p>
+            <p className="text-xs text-slate-400">Vaigai College of Engineering • Intelligent Fee Portal</p>
           </div>
         </div>
 

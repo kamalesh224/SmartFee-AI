@@ -1,3 +1,4 @@
+// agent-notes: { ctx: "PDF receipt generator styled for Vaigai College of Engineering (Anna University Campus)", deps: ["jspdf", "src/types.ts"], state: active, last: "antigravity@2026-08-15" }
 import jsPDF from 'jspdf';
 import type { Transaction } from '../types';
 
@@ -10,13 +11,13 @@ export const generateReceiptPDF = (transaction: Transaction) => {
 
   // Institution Title
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
+  doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('SMARTFEE AI INSTITUTION', 14, 20);
+  doc.text('VAIGAI COLLEGE OF ENGINEERING', 14, 20);
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text('Official Digital Payment Receipt | Autonomous Campus', 14, 28);
+  doc.text('Official Digital Payment Receipt | Anna University Campus', 14, 28);
 
   // Status Badge
   doc.setFillColor(34, 197, 94); // Green
@@ -103,8 +104,8 @@ export const generateReceiptPDF = (transaction: Transaction) => {
   doc.setTextColor(100, 116, 139);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
-  doc.text('This is a computer-generated digital receipt authenticated by SmartFee AI ledger system.', 14, 170);
-  doc.text('No signature is required. Verify online at smartfee.ai/verify with Receipt No.', 14, 176);
+  doc.text('This is a computer-generated digital receipt authenticated by Vaigai College of Engineering (Anna University Campus) fee ledger.', 14, 170);
+  doc.text('No signature is required. Official digital receipt generated via SmartFee AI system.', 14, 176);
 
   // Download PDF file
   doc.save(`${transaction.receiptNo}_SmartFee.pdf`);
