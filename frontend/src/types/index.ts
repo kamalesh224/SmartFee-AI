@@ -46,6 +46,8 @@ export interface AIRiskPrediction {
   historicalDelayDaysAvg: number;
   primaryRiskFactors: string[];
   lastPaymentDate: string;
+  email?: string;
+  password?: string;
 }
 
 export interface NotificationItem {

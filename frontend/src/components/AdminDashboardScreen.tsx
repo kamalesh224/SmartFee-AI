@@ -1,12 +1,13 @@
-// agent-notes: { ctx: "Admin dashboard screen with multi-field search across student name, roll number, department, academic year, pending fee, fee status", deps: ["src/types.ts"], state: active, last: "antigravity@2026-08-15" }
+// agent-notes: { ctx: "Admin dashboard screen with multi-field search across student name, roll number, department, academic year, pending fee, fee status and student deletion capability", deps: ["src/types.ts"], state: active, last: "antigravity@2026-08-18" }
 import React, { useState } from 'react';
 import type { User, AIRiskPrediction } from '../types';
-import { UserPlus, Filter, Search, LogOut, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { UserPlus, Filter, Search, LogOut, CheckCircle2, AlertCircle, X, Trash2 } from 'lucide-react';
 
 interface AdminDashboardScreenProps {
   admin: User;
   riskPredictions: AIRiskPrediction[];
   onAddStudent: (newStudent: AIRiskPrediction) => void;
+  onDeleteStudent?: (studentId: string) => void;
   onLogout: () => void;
 }
 
@@ -14,15 +15,19 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
   admin,
   riskPredictions,
   onAddStudent,
+  onDeleteStudent,
   onLogout,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [deptFilter, setDeptFilter] = useState<'ALL' | 'CSE' | 'ECE' | 'EEE' | 'CIVIL' | 'MECH'>('ALL');
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState<AIRiskPrediction | null>(null);
 
   // New Student Form State
   const [name, setName] = useState('');
   const [rollNo, setRollNo] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('password123');
   const [department, setDepartment] = useState('Computer Science & Engineering');
   const [academicYear, setAcademicYear] = useState('3rd Year');
   const [pendingAmount, setPendingAmount] = useState<number>(45000);
@@ -55,10 +60,15 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
 
   const handleCreateStudent = (e: React.FormEvent) => {
     e.preventDefault();
+    const generatedRollNo = rollNo || `2026-DEPT-${Math.floor(10 + Math.random() * 90)}`;
+    const generatedEmail = email || `${name.toLowerCase().replace(/\s+/g, '.')}@smartfee.edu`;
+
     const newPrediction: AIRiskPrediction = {
       studentId: `STU-2026-${Math.floor(100 + Math.random() * 900)}`,
       studentName: name,
-      rollNo: rollNo || `2026-DEPT-${Math.floor(10 + Math.random() * 90)}`,
+      rollNo: generatedRollNo,
+      email: generatedEmail,
+      password: password || 'password123',
       department,
       academicYear,
       pendingAmount,
@@ -73,6 +83,8 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
     setIsAddStudentOpen(false);
     setName('');
     setRollNo('');
+    setEmail('');
+    setPassword('password123');
   };
 
   return (
@@ -175,6 +187,7 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
                   <th className="py-3.5 px-4">Academic Year</th>
                   <th className="py-3.5 px-4">Pending Fee</th>
                   <th className="py-3.5 px-4">Fee Status</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
@@ -205,6 +218,16 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
                           </>
                         )}
                       </span>
+                    </td>
+                    <td className="py-4 px-4 text-right">
+                      <button
+                        onClick={() => setStudentToDelete(st)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 hover:border-rose-600 text-xs font-bold transition-all shadow-xs"
+                        title="Remove Student Record"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Remove
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -260,6 +283,30 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
               </div>
 
               <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Student Email</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. david.miller@smartfee.edu"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Account Password</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password for student verification"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900"
+                />
+              </div>
+
+              <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">Academic Year</label>
                 <select
                   value={academicYear}
@@ -307,6 +354,74 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
               </button>
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {/* Delete / Remove Confirmation Modal */}
+      {studentToDelete && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 relative">
+            <button
+              onClick={() => setStudentToDelete(null)}
+              className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-rose-100 text-rose-600">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider bg-rose-50 px-2.5 py-0.5 rounded-md">
+                  Confirm Deletion
+                </span>
+                <h2 className="text-lg font-black text-slate-900 mt-0.5">Remove Student Record</h2>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Are you sure you want to remove <strong className="text-slate-900">{studentToDelete.studentName}</strong> (Roll: <code className="bg-slate-100 px-1.5 py-0.5 rounded font-mono text-slate-800">{studentToDelete.rollNo}</code>) from the database? This action cannot be undone.
+            </p>
+
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-1">
+              <div className="flex justify-between text-slate-600">
+                <span>Department:</span>
+                <span className="font-semibold text-slate-900">{studentToDelete.department}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Academic Year:</span>
+                <span className="font-semibold text-slate-900">{studentToDelete.academicYear}</span>
+              </div>
+              <div className="flex justify-between text-slate-600">
+                <span>Pending Fee:</span>
+                <span className="font-bold text-amber-600">₹{studentToDelete.pendingAmount.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setStudentToDelete(null)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onDeleteStudent && studentToDelete) {
+                    onDeleteStudent(studentToDelete.studentId);
+                  }
+                  setStudentToDelete(null);
+                }}
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-600/30 transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                Yes, Remove Record
+              </button>
+            </div>
           </div>
         </div>
       )}

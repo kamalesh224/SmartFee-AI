@@ -1,4 +1,4 @@
-// agent-notes: { ctx: "Admin dashboard component with multi-field student search and risk analytics", deps: ["src/types.ts", "src/data/mockData.ts"], state: active, last: "antigravity@2026-08-15" }
+// agent-notes: { ctx: "Admin dashboard component with multi-field student search, risk analytics, and student deletion capability", deps: ["src/types.ts", "src/data/mockData.ts"], state: active, last: "antigravity@2026-08-18" }
 import React, { useState } from 'react';
 import type { User, AIRiskPrediction } from '../types';
 import { mockAnalyticsData } from '../data/mockData';
@@ -14,6 +14,8 @@ import {
   PieChart as PieIcon,
   CheckCircle2,
   BellRing,
+  Trash2,
+  X,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -29,18 +31,21 @@ interface AdminDashboardProps {
   admin: User;
   riskPredictions: AIRiskPrediction[];
   onTriggerFCMReminder: (studentName: string) => void;
+  onDeleteStudent?: (studentId: string) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   admin,
   riskPredictions,
   onTriggerFCMReminder,
+  onDeleteStudent,
 }) => {
   const [adminTab, setAdminTab] = useState<'overview' | 'ai_insights' | 'analytics'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [riskFilter, setRiskFilter] = useState<'ALL' | 'HIGH' | 'MEDIUM' | 'LOW'>('ALL');
   const [deptFilter, setDeptFilter] = useState<'ALL' | 'CSE' | 'ECE' | 'EEE' | 'CIVIL' | 'MECH'>('ALL');
   const [remindedStudents, setRemindedStudents] = useState<string[]>([]);
+  const [studentToDelete, setStudentToDelete] = useState<AIRiskPrediction | null>(null);
 
   const filteredPredictions = riskPredictions.filter((item) => {
     const searchLower = searchTerm.toLowerCase().trim();
@@ -255,7 +260,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <th className="py-3.5 px-4">Pending Amount</th>
                   <th className="py-3.5 px-4">Avg Payment Delay</th>
                   <th className="py-3.5 px-4">AI Risk Prediction</th>
-                  <th className="py-3.5 px-4 text-right">FCM Action</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 text-xs">
@@ -290,20 +295,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </span>
                     </td>
                     <td className="py-4 px-4 text-right">
-                      {remindedStudents.includes(student.studentName) ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          FCM Alert Sent
-                        </span>
-                      ) : (
+                      <div className="flex items-center justify-end gap-2">
+                        {remindedStudents.includes(student.studentName) ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            FCM Alert Sent
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleSendReminder(student.studentName)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-semibold transition-all"
+                          >
+                            <Send className="w-3 h-3" />
+                            Send Alert
+                          </button>
+                        )}
+
                         <button
-                          onClick={() => handleSendReminder(student.studentName)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-semibold transition-all"
+                          onClick={() => setStudentToDelete(student)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/20 hover:border-rose-600 text-xs font-bold transition-all"
+                          title="Remove Student Record"
                         >
-                          <Send className="w-3 h-3" />
-                          Send FCM Alert
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Remove
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -433,6 +449,74 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
           </div>
 
+        </div>
+      )}
+
+      {/* Delete / Remove Confirmation Modal */}
+      {studentToDelete && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 space-y-5 relative">
+            <button
+              onClick={() => setStudentToDelete(null)}
+              className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider bg-rose-500/10 px-2.5 py-0.5 rounded-md border border-rose-500/20">
+                  Confirm Deletion
+                </span>
+                <h2 className="text-lg font-black text-white mt-0.5">Remove Student Record</h2>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Are you sure you want to remove <strong className="text-white">{studentToDelete.studentName}</strong> (Roll: <code className="bg-slate-950 px-1.5 py-0.5 rounded font-mono text-purple-300 border border-slate-800">{studentToDelete.rollNo}</code>) from the institutional system? This action cannot be undone.
+            </p>
+
+            <div className="p-3 bg-slate-950 border border-slate-800/80 rounded-2xl text-xs space-y-1">
+              <div className="flex justify-between text-slate-400">
+                <span>Department:</span>
+                <span className="font-semibold text-white">{studentToDelete.department}</span>
+              </div>
+              <div className="flex justify-between text-slate-400">
+                <span>Academic Year:</span>
+                <span className="font-semibold text-white">{studentToDelete.academicYear}</span>
+              </div>
+              <div className="flex justify-between text-slate-400">
+                <span>Pending Fee:</span>
+                <span className="font-bold text-amber-400">₹{studentToDelete.pendingAmount.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setStudentToDelete(null)}
+                className="px-4 py-2.5 rounded-xl border border-slate-800 text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (onDeleteStudent && studentToDelete) {
+                    onDeleteStudent(studentToDelete.studentId);
+                  }
+                  setStudentToDelete(null);
+                }}
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg shadow-rose-600/30 transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                Yes, Remove Record
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

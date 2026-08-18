@@ -7,7 +7,7 @@ import {
   mockTransactions,
   mockAIRiskPredictions,
 } from './data/mockData';
-import { LoginScreen } from './components/LoginScreen';
+import { LoginPage } from './components/LoginPage';
 import { StudentDashboardScreen } from './components/StudentDashboardScreen';
 import { PaymentScreen } from './components/PaymentScreen';
 import { ReceiptScreen } from './components/ReceiptScreen';
@@ -18,6 +18,7 @@ import {
   fetchAIRiskPredictions,
   updateFeeItemStatus,
   recordTransaction,
+  deleteAIRiskPrediction,
 } from './lib/supabase';
 
 export const App: React.FC = () => {
@@ -53,8 +54,12 @@ export const App: React.FC = () => {
     loadSupabaseData();
   }, []);
 
-  const handleLogin = (role: UserRole) => {
-    setCurrentUser(role === 'student' ? mockCurrentStudent : mockAdmin);
+  const handleLogin = (role: UserRole, user?: User) => {
+    if (user) {
+      setCurrentUser(user);
+    } else {
+      setCurrentUser(role === 'student' ? mockCurrentStudent : mockAdmin);
+    }
     setIsLoggedIn(true);
   };
 
@@ -96,9 +101,14 @@ export const App: React.FC = () => {
     setRiskPredictions((prev) => [newPrediction, ...prev]);
   };
 
-  // 1. LOGIN SCREEN
+  const handleDeleteStudent = (studentId: string) => {
+    setRiskPredictions((prev) => prev.filter((student) => student.studentId !== studentId));
+    deleteAIRiskPrediction(studentId);
+  };
+
+  // 1. LOGIN SCREEN WITH STUDENT VERIFICATION
   if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return <LoginPage onLogin={handleLogin} registeredStudents={riskPredictions} />;
   }
 
   return (
@@ -119,6 +129,7 @@ export const App: React.FC = () => {
           admin={currentUser}
           riskPredictions={riskPredictions}
           onAddStudent={handleAddStudent}
+          onDeleteStudent={handleDeleteStudent}
           onLogout={handleLogout}
         />
       )}

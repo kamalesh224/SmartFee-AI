@@ -125,3 +125,9 @@ export const createNotification = async (notif: NotificationItem) => {
   });
   if (error) console.error('Supabase create notification error:', error);
 };
+
+export const deleteAIRiskPrediction = async (studentId: string) => {
+  const { error } = await supabase.from('ai_risk_predictions').delete().eq('student_id', studentId);
+  if (error) console.error('Supabase delete AI risk prediction error:', error);
+};
+
