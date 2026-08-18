@@ -1,4 +1,4 @@
-// agent-notes: { ctx: "Simplified unified login portal with role toggle, clean UI, and demo quick-fill", deps: ["src/types.ts", "src/data/mockData.ts", "src/lib/supabase.ts"], state: active, last: "antigravity@2026-08-18" }
+// agent-notes: { ctx: "Unified login portal with role toggle and dynamic light/dark theme support", deps: ["src/types.ts", "src/data/mockData.ts", "src/lib/supabase.ts"], state: active, last: "antigravity@2026-08-18" }
 import React, { useState } from 'react';
 import type { UserRole, User, AIRiskPrediction } from '../types';
 import { mockCurrentStudent, mockAdmin, mockAIRiskPredictions } from '../data/mockData';
@@ -11,10 +11,10 @@ import {
   Eye,
   EyeOff,
   User as UserIcon,
-  Sparkles,
   AlertCircle,
-  CheckCircle2,
   ArrowRight,
+  Sun,
+  Moon,
 } from 'lucide-react';
 
 interface LoginPageProps {
@@ -29,6 +29,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   registeredStudents = mockAIRiskPredictions,
 }) => {
   const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
+  // Default theme: light for student, dark for admin
+  const [theme, setTheme] = useState<'light' | 'dark'>(initialRole === 'student' ? 'light' : 'dark');
 
   // Student Form State
   const [studentQuery, setStudentQuery] = useState('Alex Rivera');
@@ -42,20 +44,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleQuickFill = () => {
-    if (activeRole === 'student') {
-      const demoStudent = registeredStudents[0] || mockAIRiskPredictions[0];
-      setStudentQuery(demoStudent.studentName);
-      setStudentPassword(demoStudent.password || 'smartfee2026');
-      setSuccessMessage(`Demo loaded: ${demoStudent.studentName} (${demoStudent.rollNo})`);
-    } else {
-      setAdminEmail('s.jenkins@smartfee.edu');
-      setAdminPassword('adminfee2026');
-      setSuccessMessage('Demo loaded: Dr. Sarah Jenkins (Admin)');
-    }
-    setTimeout(() => setSuccessMessage(null), 2500);
+  const handleRoleChange = (role: UserRole) => {
+    setActiveRole(role);
+    setTheme(role === 'student' ? 'light' : 'dark');
+    setErrorMessage(null);
   };
 
   const handleStudentSubmit = (e: React.FormEvent) => {
@@ -123,41 +116,95 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     }, 400);
   };
 
+  const isLight = theme === 'light';
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden font-sans selection:bg-blue-600 selection:text-white">
-      {/* Subtle Background Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+    <div
+      className={`min-h-screen transition-colors duration-300 flex items-center justify-center p-4 relative overflow-hidden font-sans ${
+        isLight ? 'bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white' : 'bg-slate-950 text-slate-100 selection:bg-purple-600 selection:text-white'
+      }`}
+    >
+      {/* Background Glow Spheres */}
+      <div
+        className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none transition-colors duration-500 ${
+          activeRole === 'student'
+            ? isLight
+              ? 'bg-blue-400/25'
+              : 'bg-blue-600/15'
+            : isLight
+            ? 'bg-purple-400/20'
+            : 'bg-purple-600/15'
+        }`}
+      />
+      <div
+        className={`absolute bottom-10 right-10 w-96 h-96 rounded-full blur-[120px] pointer-events-none transition-colors duration-500 ${
+          isLight ? 'bg-indigo-300/20' : 'bg-purple-900/20'
+        }`}
+      />
 
       {/* Main Login Card */}
-      <div className="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6 relative z-10">
-        
-        {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/20 mb-1">
-            {activeRole === 'student' ? (
-              <GraduationCap className="w-6 h-6" />
-            ) : (
-              <ShieldCheck className="w-6 h-6" />
-            )}
+      <div
+        className={`w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6 relative z-10 transition-all duration-300 ${
+          isLight
+            ? 'bg-white/95 border border-slate-200 text-slate-900 shadow-slate-200/50'
+            : 'bg-slate-900/90 border border-slate-800 text-slate-100'
+        }`}
+      >
+        {/* Top Header Row with Theme Toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-md transition-all ${
+                activeRole === 'student'
+                  ? 'bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-blue-500/20'
+                  : 'bg-gradient-to-tr from-purple-600 to-indigo-600 shadow-purple-500/20'
+              }`}
+            >
+              {activeRole === 'student' ? (
+                <GraduationCap className="w-5 h-5" />
+              ) : (
+                <ShieldCheck className="w-5 h-5" />
+              )}
+            </div>
+            <div>
+              <h1 className={`text-xl font-black tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                SmartFee <span className={activeRole === 'student' ? 'text-blue-600' : 'text-purple-500'}>AI</span>
+              </h1>
+              <p className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+                Institutional Fee Portal
+              </p>
+            </div>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">SmartFee AI</h1>
-          <p className="text-xs text-slate-400 font-medium">
-            Institutional Fee & AI Prediction Platform
-          </p>
+
+          {/* Sun / Moon Theme Toggle */}
+          <button
+            type="button"
+            onClick={() => setTheme(isLight ? 'dark' : 'light')}
+            className={`p-2.5 rounded-2xl border transition-all ${
+              isLight
+                ? 'bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700'
+                : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-amber-400'
+            }`}
+            title={`Switch to ${isLight ? 'Dark' : 'Light'} Mode`}
+          >
+            {isLight ? <Moon className="w-4 h-4 text-purple-600" /> : <Sun className="w-4 h-4 text-amber-400" />}
+          </button>
         </div>
 
         {/* Role Toggle Selector */}
-        <div className="grid grid-cols-2 p-1 rounded-2xl bg-slate-950 border border-slate-800 text-xs font-bold">
+        <div
+          className={`grid grid-cols-2 p-1 rounded-2xl text-xs font-bold transition-colors ${
+            isLight ? 'bg-slate-100 border border-slate-200' : 'bg-slate-950 border border-slate-800'
+          }`}
+        >
           <button
             type="button"
-            onClick={() => {
-              setActiveRole('student');
-              setErrorMessage(null);
-            }}
+            onClick={() => handleRoleChange('student')}
             className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl transition-all ${
               activeRole === 'student'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                : isLight
+                ? 'text-slate-600 hover:text-slate-900'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -166,13 +213,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => {
-              setActiveRole('admin');
-              setErrorMessage(null);
-            }}
+            onClick={() => handleRoleChange('admin')}
             className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl transition-all ${
               activeRole === 'admin'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                : isLight
+                ? 'text-slate-600 hover:text-slate-900'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -183,16 +229,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
         {/* Feedback Messages */}
         {errorMessage && (
-          <div className="flex items-center gap-2 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs animate-in fade-in duration-200">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMessage}</span>
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="flex items-center gap-2 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs animate-in fade-in duration-200">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>{successMessage}</span>
           </div>
         )}
 
@@ -200,36 +239,48 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         {activeRole === 'student' ? (
           <form onSubmit={handleStudentSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">Student Name or Roll Number</label>
+              <label className={`text-xs font-bold block ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                Student Name or Roll Number
+              </label>
               <div className="relative">
-                <UserIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                <UserIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="text"
                   required
                   value={studentQuery}
                   onChange={(e) => setStudentQuery(e.target.value)}
                   placeholder="e.g. Alex Rivera or 2026-CS-042"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
+                  className={`w-full rounded-xl pl-10 pr-4 py-2.5 text-xs transition-all ${
+                    isLight
+                      ? 'bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white'
+                      : 'bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500'
+                  }`}
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">Password</label>
+              <label className={`text-xs font-bold block ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                Password
+              </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={studentPassword}
                   onChange={(e) => setStudentPassword(e.target.value)}
                   placeholder="Enter your student password"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
+                  className={`w-full rounded-xl pl-10 pr-10 py-2.5 text-xs transition-all ${
+                    isLight
+                      ? 'bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white'
+                      : 'bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-slate-500 hover:text-slate-300"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -255,36 +306,48 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           /* ADMIN FORM */
           <form onSubmit={handleAdminSubmit} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">Admin Email Address</label>
+              <label className={`text-xs font-bold block ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                Admin Email Address
+              </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type="email"
                   required
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
                   placeholder="e.g. s.jenkins@smartfee.edu"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all"
+                  className={`w-full rounded-xl pl-10 pr-4 py-2.5 text-xs transition-all ${
+                    isLight
+                      ? 'bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white'
+                      : 'bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500'
+                  }`}
                 />
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300 block">Admin Password</label>
+              <label className={`text-xs font-bold block ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                Admin Password
+              </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
                   placeholder="Enter administrator password"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all"
+                  className={`w-full rounded-xl pl-10 pr-10 py-2.5 text-xs transition-all ${
+                    isLight
+                      ? 'bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white'
+                      : 'bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-slate-500 hover:text-slate-300"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -308,21 +371,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           </form>
         )}
 
-        {/* Quick Demo Credentials Button */}
-        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
-          <span className="text-[11px] text-slate-400 font-medium">Testing account?</span>
-          <button
-            type="button"
-            onClick={handleQuickFill}
-            className="flex items-center gap-1 text-[11px] font-bold text-purple-400 hover:text-purple-300 transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
-            <span>Load Demo Credentials</span>
-          </button>
-        </div>
-
         {/* Footer Note */}
-        <div className="text-center text-[10px] text-slate-500 font-medium">
+        <div className={`text-center text-[10px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>
           Vaigai College of Engineering • Anna University Campus
         </div>
 
