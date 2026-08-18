@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onSwitchRole('admin')}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               currentUser.role === 'admin'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
             }`}
           >

@@ -29,8 +29,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   registeredStudents = mockAIRiskPredictions,
 }) => {
   const [activeRole, setActiveRole] = useState<UserRole>(initialRole);
-  // Default theme: light for student, dark for admin
-  const [theme, setTheme] = useState<'light' | 'dark'>(initialRole === 'student' ? 'light' : 'dark');
+  // Same unified default theme mode (light) for both student and admin
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   // Student Form State
   const [studentQuery, setStudentQuery] = useState('Alex Rivera');
@@ -47,7 +47,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
   const handleRoleChange = (role: UserRole) => {
     setActiveRole(role);
-    setTheme(role === 'student' ? 'light' : 'dark');
+    // Keep theme consistent across both student and admin roles
     setErrorMessage(null);
   };
 
@@ -121,24 +121,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   return (
     <div
       className={`min-h-screen transition-colors duration-300 flex items-center justify-center p-4 relative overflow-hidden font-sans ${
-        isLight ? 'bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white' : 'bg-slate-950 text-slate-100 selection:bg-purple-600 selection:text-white'
+        isLight ? 'bg-slate-50 text-slate-900 selection:bg-blue-600 selection:text-white' : 'bg-slate-950 text-slate-100 selection:bg-blue-600 selection:text-white'
       }`}
     >
       {/* Background Glow Spheres */}
       <div
         className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none transition-colors duration-500 ${
-          activeRole === 'student'
-            ? isLight
-              ? 'bg-blue-400/25'
-              : 'bg-blue-600/15'
-            : isLight
-            ? 'bg-purple-400/20'
-            : 'bg-purple-600/15'
+          isLight ? 'bg-blue-400/25' : 'bg-blue-600/15'
         }`}
       />
       <div
         className={`absolute bottom-10 right-10 w-96 h-96 rounded-full blur-[120px] pointer-events-none transition-colors duration-500 ${
-          isLight ? 'bg-indigo-300/20' : 'bg-purple-900/20'
+          isLight ? 'bg-indigo-300/20' : 'bg-indigo-900/20'
         }`}
       />
 
@@ -153,13 +147,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         {/* Top Header Row with Theme Toggle */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div
-              className={`w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-md transition-all ${
-                activeRole === 'student'
-                  ? 'bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-blue-500/20'
-                  : 'bg-gradient-to-tr from-purple-600 to-indigo-600 shadow-purple-500/20'
-              }`}
-            >
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-md bg-gradient-to-tr from-blue-600 to-indigo-600 shadow-blue-500/20">
               {activeRole === 'student' ? (
                 <GraduationCap className="w-5 h-5" />
               ) : (
@@ -168,7 +156,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             </div>
             <div>
               <h1 className={`text-xl font-black tracking-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                SmartFee <span className={activeRole === 'student' ? 'text-blue-600' : 'text-purple-500'}>AI</span>
+                SmartFee <span className="text-blue-600">AI</span>
               </h1>
               <p className={`text-[11px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
                 Institutional Fee Portal
@@ -187,7 +175,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             }`}
             title={`Switch to ${isLight ? 'Dark' : 'Light'} Mode`}
           >
-            {isLight ? <Moon className="w-4 h-4 text-purple-600" /> : <Sun className="w-4 h-4 text-amber-400" />}
+            {isLight ? <Moon className="w-4 h-4 text-slate-700" /> : <Sun className="w-4 h-4 text-amber-400" />}
           </button>
         </div>
 
@@ -216,7 +204,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             onClick={() => handleRoleChange('admin')}
             className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl transition-all ${
               activeRole === 'admin'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : isLight
                 ? 'text-slate-600 hover:text-slate-900'
                 : 'text-slate-400 hover:text-white'
@@ -319,8 +307,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   placeholder="e.g. s.jenkins@smartfee.edu"
                   className={`w-full rounded-xl pl-10 pr-4 py-2.5 text-xs transition-all ${
                     isLight
-                      ? 'bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white'
-                      : 'bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500'
+                      ? 'bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white'
+                      : 'bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500'
                   }`}
                 />
               </div>
@@ -340,8 +328,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   placeholder="Enter administrator password"
                   className={`w-full rounded-xl pl-10 pr-10 py-2.5 text-xs transition-all ${
                     isLight
-                      ? 'bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white'
-                      : 'bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500'
+                      ? 'bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white'
+                      : 'bg-slate-950 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500'
                   }`}
                 />
                 <button
@@ -357,7 +345,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-600/25 flex items-center justify-center gap-2 transition-all mt-2 disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-blue-600/25 flex items-center justify-center gap-2 transition-all mt-2 disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
