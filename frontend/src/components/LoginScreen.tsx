@@ -1,4 +1,4 @@
-// agent-notes: { ctx: "Login screen component for Vaigai College of Engineering (Anna University Campus)", deps: ["src/types.ts"], state: active, last: "antigravity@2026-08-15" }
+// agent-notes: { ctx: "Login screen component for Vaigai College of Engineering (Anna University)", deps: ["src/types.ts"], state: active, last: "antigravity@2026-08-15" }
 import React, { useState } from 'react';
 import type { UserRole } from '../types';
 import { Sparkles, UserCheck, ShieldCheck, ArrowRight, Lock, Mail } from 'lucide-react';
@@ -37,7 +37,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             <Sparkles className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Vaigai College of Engineering</h1>
-          <p className="text-xs text-slate-500 font-medium">Anna University Campus • SmartFee AI Portal</p>
+          <p className="text-xs text-slate-500 font-medium">Anna University • SmartFee AI Portal</p>
         </div>
 
         {/* 2. Admin / Student Toggle */}

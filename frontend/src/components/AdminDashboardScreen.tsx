@@ -95,7 +95,7 @@ export const AdminDashboardScreen: React.FC<AdminDashboardScreenProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-6 rounded-3xl border border-slate-200 shadow-sm gap-4">
           <div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
-              Vaigai College of Engineering • Anna University Campus
+              Vaigai College of Engineering • Anna University
             </span>
             <h1 className="text-2xl font-black text-slate-900 mt-1">{admin.name}</h1>
             <p className="text-xs text-slate-500 font-medium">{admin.department} • Administrator Portal</p>

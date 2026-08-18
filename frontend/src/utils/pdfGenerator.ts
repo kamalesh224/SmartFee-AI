@@ -1,4 +1,4 @@
-// agent-notes: { ctx: "PDF receipt generator styled for Vaigai College of Engineering (Anna University Campus)", deps: ["jspdf", "src/types.ts"], state: active, last: "antigravity@2026-08-15" }
+// agent-notes: { ctx: "PDF receipt generator styled for Vaigai College of Engineering (Anna University)", deps: ["jspdf", "src/types.ts"], state: active, last: "antigravity@2026-08-15" }
 import jsPDF from 'jspdf';
 import type { Transaction } from '../types';
 
@@ -17,7 +17,7 @@ export const generateReceiptPDF = (transaction: Transaction) => {
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text('Official Digital Payment Receipt | Anna University Campus', 14, 28);
+  doc.text('Official Digital Payment Receipt | Anna University', 14, 28);
 
   // Status Badge
   doc.setFillColor(34, 197, 94); // Green
@@ -104,7 +104,7 @@ export const generateReceiptPDF = (transaction: Transaction) => {
   doc.setTextColor(100, 116, 139);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'italic');
-  doc.text('This is a computer-generated digital receipt authenticated by Vaigai College of Engineering (Anna University Campus) fee ledger.', 14, 170);
+  doc.text('This is a computer-generated digital receipt authenticated by Vaigai College of Engineering (Anna University) fee ledger.', 14, 170);
   doc.text('No signature is required. Official digital receipt generated via SmartFee AI system.', 14, 176);
 
   // Download PDF file

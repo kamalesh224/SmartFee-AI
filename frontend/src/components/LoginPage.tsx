@@ -361,7 +361,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
 
         {/* Footer Note */}
         <div className={`text-center text-[10px] font-medium ${isLight ? 'text-slate-500' : 'text-slate-500'}`}>
-          Vaigai College of Engineering • Anna University Campus
+          Vaigai College of Engineering • Anna University
         </div>
 
       </div>
