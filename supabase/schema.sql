@@ -171,3 +171,30 @@ VALUES
   ('NOTIF-03', 'AI Smart Reminder', 'SmartFee AI detected upcoming exam fee deadline. Pay now to avoid late penalty.', '1 day ago', true, 'ai_alert'),
   ('NOTIF-04', 'New Scholarship Portal Open', 'Merit-based fee concession applications are open for AY 2026-27.', '3 days ago', true, 'announcement')
 ON CONFLICT (id) DO NOTHING;
+
+-- --------------------------------------------------------------------
+-- 6. RAG KNOWLEDGE BASE VECTOR STORE SCHEMA
+-- --------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.knowledge_base (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  content TEXT NOT NULL,
+  source_ref TEXT NOT NULL,
+  tags TEXT[] DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.knowledge_base ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow open access to knowledge_base" ON public.knowledge_base;
+CREATE POLICY "Allow open access to knowledge_base" ON public.knowledge_base FOR ALL USING (true) WITH CHECK (true);
+
+-- Seed Initial Institutional RAG Knowledge Corpus Chunks
+INSERT INTO public.knowledge_base (id, title, category, content, source_ref, tags)
+VALUES
+  ('KNOW-FEE-001', 'Tuition Fee Structure & Due Date Guidelines', 'Fee Policy', 'Tuition fees for Vaigai College of Engineering (affiliated with Anna University) are payable at the start of each semester. For Semester 6 (AY 2026-27), tuition fee is ₹45,000 due August 25, 2026.', 'Institutional Fee Policy §2.1 (AY 2026-27)', ARRAY['tuition', 'fee', 'due', 'date', 'semester']),
+  ('KNOW-PEN-001', 'Late Fee Penalties & Grace Periods', 'Late Penalty & Refund', 'A grace period of 7 days (until Sept 1, 2026) is extended without penalty. Days 8-15 late: ₹500 fine; Days 16-30 late: ₹1,500 fine; Exceeding 30 days late: Hall ticket hold for exams.', 'Financial Ordinance Clause 7.2', ARRAY['late', 'penalty', 'fine', 'grace', 'period']),
+  ('KNOW-SCH-001', 'Merit & Need-Based Fee Concession Rules', 'Scholarship & Concessions', 'Students with CGPA 8.5+ receive a 25% waiver on Tuition Fees under Merit Excellence Scheme. EWS and First Generation Graduates can apply for up to 50% concession.', 'Scholarship Manual §3.8', ARRAY['scholarship', 'merit', 'concession', 'waiver']),
+  ('KNOW-AI-001', 'AI Default Risk Scoring & Early Warning Engine', 'AI Risk Prediction', 'SmartFee AI calculates Default Risk Scores using historical delay days, due date proximity, and failed card attempts to classify students into HIGH, MEDIUM, and LOW risk tiers.', 'SmartFee AI Prediction System Architecture §4', ARRAY['risk', 'prediction', 'default', 'high', 'probability'])
+ON CONFLICT (id) DO NOTHING;

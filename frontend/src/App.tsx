@@ -12,6 +12,7 @@ import { StudentDashboardScreen } from './components/StudentDashboardScreen';
 import { PaymentScreen } from './components/PaymentScreen';
 import { ReceiptScreen } from './components/ReceiptScreen';
 import { AdminDashboardScreen } from './components/AdminDashboardScreen';
+import { RAGAssistantWidget } from './components/RAGAssistantWidget';
 import {
   fetchFeeItems,
   fetchTransactions,
@@ -35,6 +36,9 @@ export const App: React.FC = () => {
 
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<Transaction | null>(null);
+
+  // RAG AI Assistant state
+  const [isRAGAssistantOpen, setIsRAGAssistantOpen] = useState(false);
 
   useEffect(() => {
     const loadSupabaseData = async () => {
@@ -147,6 +151,22 @@ export const App: React.FC = () => {
         isOpen={isReceiptOpen}
         transaction={selectedReceipt}
         onClose={() => setIsReceiptOpen(false)}
+      />
+
+      {/* 5. RAG AI ASSISTANT WIDGET */}
+      <RAGAssistantWidget
+        currentUser={currentUser}
+        feeItems={feeItems}
+        transactions={transactions}
+        riskPredictions={riskPredictions}
+        onOpenPayment={handleOpenPayment}
+        onViewReceipt={handleViewReceipt}
+        onNavigateToRisk={() => {
+          // Navigation trigger for admin view risk dashboard
+          window.scrollTo({ top: 300, behavior: 'smooth' });
+        }}
+        isOpenExternal={isRAGAssistantOpen}
+        onCloseExternal={() => setIsRAGAssistantOpen(false)}
       />
 
     </div>

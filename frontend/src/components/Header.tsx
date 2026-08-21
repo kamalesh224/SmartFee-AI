@@ -11,6 +11,7 @@ interface HeaderProps {
   unreadNotifCount: number;
   onOpenNotifications: () => void;
   onLogout: () => void;
+  onOpenRAGAssistant?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   unreadNotifCount,
   onOpenNotifications,
   onLogout,
+  onOpenRAGAssistant,
 }) => {
   return (
     <header className="sticky top-0 z-30 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3">
@@ -95,6 +97,18 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Right Actions */}
         <div className="flex items-center gap-3">
           
+          {/* RAG AI Assistant Header Button */}
+          {onOpenRAGAssistant && (
+            <button
+              onClick={onOpenRAGAssistant}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 hover:from-blue-600/50 hover:to-purple-600/50 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition-all shadow-sm"
+              title="Launch RAG AI Assistant"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '8s' }} />
+              <span className="hidden sm:inline">RAG AI</span>
+            </button>
+          )}
+
           {/* FCM Notification Trigger */}
           <button
             onClick={onOpenNotifications}
