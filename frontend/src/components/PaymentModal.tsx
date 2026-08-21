@@ -3,6 +3,8 @@ import type { FeeItem, Transaction } from '../types';
 import { X, CreditCard, QrCode, Building, ShieldCheck, CheckCircle2, Loader2, Lock } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+import { initiateRazorpayPayment } from '../lib/razorpay';
+
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,9 +25,40 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   if (!isOpen || !feeItem) return null;
 
-  const handlePayNow = () => {
-    setIsProcessing(true);
+  const handlePayNow = async () => {
+    if (gateway === 'Razorpay') {
+      setIsProcessing(true);
+      await initiateRazorpayPayment({
+        feeItem,
+        amount: feeItem.amount,
+        paymentMethod: method,
+        onSuccess: (newTxn) => {
+          setIsProcessing(false);
+          setIsSuccess(true);
+          confetti({
+            particleCount: 80,
+            spread: 70,
+            origin: { y: 0.6 },
+          });
+          setTimeout(() => {
+            onPaymentSuccess(newTxn);
+            setIsSuccess(false);
+            onClose();
+          }, 1500);
+        },
+        onFailure: (err) => {
+          console.error('Razorpay Error:', err);
+          setIsProcessing(false);
+        },
+        onDismiss: () => {
+          setIsProcessing(false);
+        },
+      });
+      return;
+    }
 
+    // Stripe / Simulated fallback
+    setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
       setIsSuccess(true);
@@ -57,7 +90,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         onClose();
       }, 2000);
 
-    }, 2000);
+    }, 1500);
   };
 
   return (

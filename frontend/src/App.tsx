@@ -142,6 +142,7 @@ export const App: React.FC = () => {
       <PaymentScreen
         isOpen={isPaymentOpen}
         feeItem={selectedFeeItem}
+        currentUser={currentUser}
         onClose={() => setIsPaymentOpen(false)}
         onPaymentSuccess={handlePaymentSuccess}
       />
